@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wildkamera</string>
+    <string name="btn_on">Wildkamera AN</string>
+    <string name="btn_off">Wildkamera AUS</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="sensitivity_label">Sensibilität (Bewegungsschwelle)</string>
+    <string name="pre_buffer_label">Pre-Buffer (Sekunden)</string>
+    <string name="trail_time_label">Nachlaufzeit nach Bewegung (Sekunden)</string>
+    <string name="max_video_label">Max. Videolänge (Minuten)</string>
+    <string name="save_path_label">Speicherpfad</string>
+    <string name="save_path_btn">Ordner wählen</string>
+    <string name="notification_channel">Wildkamera</string>
+    <string name="notification_running">Wildkamera läuft im Hintergrund</string>
+    <string name="notification_motion">Bewegung erkannt!</string>
+    <string name="perm_required">Kamera- und Speicherberechtigungen erforderlich</string>
+    <string name="btn_save">Speichern</string>
+</resources>
