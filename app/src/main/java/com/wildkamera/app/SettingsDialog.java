@@ -7,7 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +34,11 @@ public class SettingsDialog extends DialogFragment {
 
         SeekBar seekSensitivity = view.findViewById(R.id.seekSensitivity);
         TextView tvSensVal      = view.findViewById(R.id.tvSensitivityValue);
+        RadioGroup rgQuality    = view.findViewById(R.id.rgQuality);
+        RadioButton rbSD        = view.findViewById(R.id.rbSD);
+        RadioButton rbHD        = view.findViewById(R.id.rbHD);
+        RadioButton rbFHD       = view.findViewById(R.id.rbFHD);
+        Switch switchAudio      = view.findViewById(R.id.switchAudio);
         EditText etPreBuffer    = view.findViewById(R.id.etPreBuffer);
         EditText etTrailTime    = view.findViewById(R.id.etTrailTime);
         EditText etMaxVideo     = view.findViewById(R.id.etMaxVideo);
@@ -38,9 +46,20 @@ public class SettingsDialog extends DialogFragment {
         Button btnChooseFolder  = view.findViewById(R.id.btnChooseFolder);
         Button btnSave          = view.findViewById(R.id.btnSaveSettings);
 
+        // Lade gespeicherte Werte
         int sensInt = (int) settings.getSensitivity();
         seekSensitivity.setProgress(sensInt);
-        tvSensVal.setText(sensInt + "%");
+        tvSensVal.setText(sensInt + " / 100");
+
+        // Qualität
+        String q = settings.getQuality();
+        if ("FHD".equals(q)) rbFHD.setChecked(true);
+        else if ("HD".equals(q)) rbHD.setChecked(true);
+        else rbSD.setChecked(true);
+
+        // Ton
+        switchAudio.setChecked(settings.getAudioEnabled());
+
         etPreBuffer.setText(String.valueOf(settings.getPreBuffer()));
         etTrailTime.setText(String.valueOf(settings.getTrailTime()));
         etMaxVideo.setText(String.valueOf(settings.getMaxVideoMin()));
@@ -50,7 +69,13 @@ public class SettingsDialog extends DialogFragment {
 
         seekSensitivity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar sb, int p, boolean u) {
-                tvSensVal.setText(Math.max(1, p) + "%");
+                int val = Math.max(1, p);
+                String label;
+                if (val >= 80) label = val + " / 100 🔴 Ultra";
+                else if (val >= 50) label = val + " / 100 🟡 Hoch";
+                else if (val >= 20) label = val + " / 100 🟢 Mittel";
+                else label = val + " / 100 ⚪ Gering";
+                tvSensVal.setText(label);
             }
             public void onStartTrackingTouch(SeekBar sb) {}
             public void onStopTrackingTouch(SeekBar sb) {}
@@ -62,14 +87,33 @@ public class SettingsDialog extends DialogFragment {
         });
 
         btnSave.setOnClickListener(v -> {
+            // Sensibilität
             int sens = Math.max(1, seekSensitivity.getProgress());
             settings.setSensitivity(sens);
-            try { settings.setPreBuffer(Integer.parseInt(etPreBuffer.getText().toString())); }
-            catch (NumberFormatException e) { settings.setPreBuffer(AppSettings.DEFAULT_PRE_BUFFER); }
-            try { settings.setTrailTime(Integer.parseInt(etTrailTime.getText().toString())); }
-            catch (NumberFormatException e) { settings.setTrailTime(AppSettings.DEFAULT_TRAIL_TIME); }
-            try { settings.setMaxVideoMin(Integer.parseInt(etMaxVideo.getText().toString())); }
-            catch (NumberFormatException e) { settings.setMaxVideoMin(AppSettings.DEFAULT_MAX_VIDEO_MIN); }
+
+            // Qualität
+            int qId = rgQuality.getCheckedRadioButtonId();
+            if (qId == R.id.rbFHD) settings.setQuality("FHD");
+            else if (qId == R.id.rbHD) settings.setQuality("HD");
+            else settings.setQuality("SD");
+
+            // Ton
+            settings.setAudioEnabled(switchAudio.isChecked());
+
+            // Andere Werte
+            try { settings.setPreBuffer(
+                    Integer.parseInt(etPreBuffer.getText().toString())); }
+            catch (NumberFormatException e) {
+                settings.setPreBuffer(AppSettings.DEFAULT_PRE_BUFFER); }
+            try { settings.setTrailTime(
+                    Integer.parseInt(etTrailTime.getText().toString())); }
+            catch (NumberFormatException e) {
+                settings.setTrailTime(AppSettings.DEFAULT_TRAIL_TIME); }
+            try { settings.setMaxVideoMin(
+                    Integer.parseInt(etMaxVideo.getText().toString())); }
+            catch (NumberFormatException e) {
+                settings.setMaxVideoMin(AppSettings.DEFAULT_MAX_VIDEO_MIN); }
+
             settings.setSavePath(chosenPath);
             dismiss();
         });
@@ -80,7 +124,8 @@ public class SettingsDialog extends DialogFragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode,
+                                 @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 99 && resultCode == Activity.RESULT_OK && data != null) {
             Uri uri = data.getData();
