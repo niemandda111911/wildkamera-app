@@ -22,6 +22,19 @@
         android:padding="16dp"
         android:background="#1A1A1A">
 
+        <TextView
+            android:id="@+id/tvRecordingStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⏺ Aufnahme läuft..."
+            android:textColor="#FF5252"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:padding="6dp"
+            android:background="#330000"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/btnToggle"
             android:layout_width="match_parent"
