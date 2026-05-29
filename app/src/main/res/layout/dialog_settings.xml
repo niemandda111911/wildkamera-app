@@ -13,16 +13,17 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_title"
+            android:text="Einstellungen"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="20dp" />
 
+        <!-- Sensibilität -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sensitivity_label"
+            android:text="Sensibilität (1=gering, 100=ultra)"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
@@ -30,7 +31,7 @@
             android:id="@+id/tvSensitivityValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2%"
+            android:text="50%"
             android:textColor="#4CAF50"
             android:textSize="14sp" />
 
@@ -39,13 +40,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
-            android:progress="2"
+            android:progress="50"
             android:layout_marginBottom="20dp" />
 
+        <!-- Videoqualität -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pre_buffer_label"
+            android:text="Videoqualität"
+            android:textColor="#CCCCCC"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgQuality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <RadioButton
+                android:id="@+id/rbSD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SD"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#4CAF50" />
+
+            <RadioButton
+                android:id="@+id/rbHD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="HD"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#4CAF50" />
+
+            <RadioButton
+                android:id="@+id/rbFHD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="FHD"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#4CAF50" />
+
+        </RadioGroup>
+
+        <!-- Ton -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ton aufnehmen"
+            android:textColor="#CCCCCC"
+            android:textSize="14sp" />
+
+        <Switch
+            android:id="@+id/switchAudio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mikrofon aktiv"
+            android:textColor="#FFFFFF"
+            android:thumbTint="#4CAF50"
+            android:trackTint="#2E7D32"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Pre-Buffer -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pre-Buffer (Sekunden)"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
@@ -60,10 +125,11 @@
             android:backgroundTint="#4CAF50"
             android:layout_marginBottom="20dp" />
 
+        <!-- Nachlaufzeit -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/trail_time_label"
+            android:text="Nachlaufzeit nach Bewegung (Sek.)"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
@@ -78,10 +144,11 @@
             android:backgroundTint="#4CAF50"
             android:layout_marginBottom="20dp" />
 
+        <!-- Max Videolänge -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/max_video_label"
+            android:text="Max. Videolänge (Minuten)"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
@@ -96,10 +163,11 @@
             android:backgroundTint="#4CAF50"
             android:layout_marginBottom="20dp" />
 
+        <!-- Speicherpfad -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_path_label"
+            android:text="Speicherpfad"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
@@ -116,7 +184,7 @@
             android:id="@+id/btnChooseFolder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_path_btn"
+            android:text="Ordner wählen"
             android:backgroundTint="#2E7D32"
             android:layout_marginBottom="24dp" />
 
@@ -124,7 +192,7 @@
             android:id="@+id/btnSaveSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_save"
+            android:text="Speichern"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:textStyle="bold" />
