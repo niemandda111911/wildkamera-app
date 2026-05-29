@@ -132,3 +132,106 @@ public class WildkameraService extends LifecycleService {
         lastMotionTime = System.currentTimeMillis();
         sendMotionNotification();
         mainHandler.post(()
+-> { if (!isRecording) startNewRecording(); });
+    }
+
+    private void startNewRecording() {
+        if (videoCapture == null) return;
+        File outFile = fileHelper.nextVideoFile();
+        FileOutputOptions opts = new FileOutputOptions.Builder(outFile).build();
+        try {
+            currentRecording = videoCapture.getOutput()
+                    .prepareRecording(this, opts)
+                    .start(ContextCompat.getMainExecutor(this), event -> {
+                        if (event instanceof VideoRecordEvent.Finalize) {
+                            VideoRecordEvent.Finalize fin = (VideoRecordEvent.Finalize) event;
+                            if (!fin.hasError()) fileHelper.registerInMediaStore(outFile);
+                            isRecording = false;
+                            currentRecording = null;
+                        }
+                    });
+            isRecording = true;
+            recordingStartTime = System.currentTimeMillis();
+        } catch (Exception e) {
+            Log.e(TAG, "Recording error", e);
+        }
+    }
+
+    private void stopCurrentRecording() {
+        if (currentRecording != null) currentRecording.stop();
+    }
+
+    private void startRecordingCheckLoop() {
+        recordingCheckRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isRecording) {
+                    long now = System.currentTimeMillis();
+                    long trailMs = settings.getTrailTime() * 1000L;
+                    long maxMs = settings.getMaxVideoMin() * 60 * 1000L;
+                    if ((now - recordingStartTime) >= maxMs) {
+                        stopCurrentRecording();
+                        mainHandler.postDelayed(() -> startNewRecording(), 300);
+                    } else if ((now - lastMotionTime) >= trailMs) {
+                        stopCurrentRecording();
+                    }
+                }
+                mainHandler.postDelayed(this, 1000);
+            }
+        };
+        mainHandler.postDelayed(recordingCheckRunnable, 1000);
+    }
+
+    private void createNotificationChannels() {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        nm.createNotificationChannel(new NotificationChannel(
+                CHANNEL_ID, "Wildkamera Status", NotificationManager.IMPORTANCE_LOW));
+        nm.createNotificationChannel(new NotificationChannel(
+                CHANNEL_MOTION, "Bewegungserkennung", NotificationManager.IMPORTANCE_HIGH));
+    }
+
+    private Notification buildRunningNotification() {
+        PendingIntent pi = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Wildkamera aktiv")
+                .setContentText("Bewegungserkennung läuft im Hintergrund")
+                .setSmallIcon(android.R.drawable.ic_menu_camera)
+                .setContentIntent(pi)
+                .setOngoing(true)
+                .build();
+    }
+
+    private void sendMotionNotification() {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        nm.notify(NOTIF_ID_MOTION, new NotificationCompat.Builder(this, CHANNEL_MOTION)
+                .setContentTitle("Wildkamera")
+                .setContentText("Bewegung erkannt!")
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setAutoCancel(true)
+                .build());
+    }
+
+    private void acquireWakeLock() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wildkamera::RecordingLock");
+        wakeLock.acquire();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (recordingCheckRunnable != null) mainHandler.removeCallbacks(recordingCheckRunnable);
+        stopCurrentRecording();
+        if (cameraProvider != null) cameraProvider.unbindAll();
+        if (analysisExecutor != null) analysisExecutor.shutdown();
+        if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
+        super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        super.onBind(intent);
+        return null;
+    }
+}
