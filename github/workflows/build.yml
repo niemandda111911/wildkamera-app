@@ -1,4 +1,4 @@
-name: Build Wildkamera APK
+name: Build Wildkamera APK 
 
 on:
   push:
